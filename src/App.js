@@ -127,6 +127,7 @@ const Register = ({ onRegister }) => {
 
 const Products = () => {
     const [produtos, setProdutos] = useState([]);
+    const [view, setView] = useState(""); // Estado para controlar qual formulário exibir
     const [nome, setNome] = useState("");
     const [quantidade, setQuantidade] = useState("");
     const [preco, setPreco] = useState("");
@@ -135,7 +136,7 @@ const Products = () => {
     const [idEditando, setIdEditando] = useState(null);
     const [error, setError] = useState("");
 
-    const token = localStorage.getItem("token"); // Supondo que o token esteja armazenado no localStorage
+    const token = localStorage.getItem("token");
 
     // Função para buscar produtos
     const fetchProdutos = async () => {
@@ -146,70 +147,10 @@ const Products = () => {
                 },
             });
             setProdutos(response.data);
+            setView("listar");
         } catch (err) {
             console.error("Erro ao buscar produtos:", err);
             setError("Erro ao buscar produtos.");
-        }
-    };
-
-    // Função para adicionar ou editar produto
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const produtoData = {
-            nome,
-            quantidade: Number(quantidade),
-            preco: Number(preco),
-            descricao,
-            imagem,
-        };
-
-        try {
-            if (idEditando) {
-                // Atualiza produto
-                const response = await axios.put("https://backend-aula.vercel.app/app/produtos", {
-                    id: idEditando,
-                    ...produtoData,
-                }, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                // Verifica se produtos é um array antes de mapear
-                setProdutos(prevProdutos =>
-                    Array.isArray(prevProdutos) ? prevProdutos.map(p => (p._id === idEditando ? response.data : p)) : []
-                );
-            } else {
-                // Adiciona novo produto
-                const response = await axios.post("https://backend-aula.vercel.app/app/produtos", produtoData, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                setProdutos(prevProdutos =>
-                    Array.isArray(prevProdutos) ? [...prevProdutos, response.data] : [response.data]
-                );
-            }
-            // Limpa os campos
-            clearForm();
-        } catch (err) {
-            console.error("Erro ao salvar produto:", err);
-            setError(err.response?.data?.error || "Erro ao salvar produto.");
-        }
-    };
-
-    // Função para excluir produto
-    const handleDelete = async (id) => {
-        try {
-            await axios.delete("https://backend-aula.vercel.app/app/produtos", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                data: { id },
-            });
-            setProdutos(produtos.filter(produto => produto._id !== id));
-        } catch (err) {
-            console.error("Erro ao excluir produto:", err);
-            setError(err.response?.data?.error || "Erro ao excluir produto.");
         }
     };
 
@@ -223,31 +164,98 @@ const Products = () => {
         setError("");
     };
 
+    const handleAddClick = () => {
+        setView("adicionar");
+        clearForm();
+    };
+
+    const handleEditClick = () => {
+        setView("alterar");
+    };
+
+    const handleListClick = () => {
+        fetchProdutos();
+    };
+
+    const handleDeleteClick = () => {
+        setView("deletar");
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete('https://backend-aula.vercel.app/app/produtos', {
+                data: { id: id }, // Enviar o ID no corpo, conforme o backend espera
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setProdutos(produtos.filter((produto) => produto._id !== id));  // Remove o produto da lista local
+        } catch (err) {
+            console.error("Erro ao deletar produto:", err);
+            setError("Erro ao deletar produto.");
+        }
+    };
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const produto = {
+            id: idEditando, // Adiciona o id do produto que está sendo editado
+            nome,
+            quantidade,
+            preco,
+            descricao,
+            imagem,
+        };
+
+        try {
+            if (idEditando) {
+                // Editar produto
+                await axios.put(`https://backend-aula.vercel.app/app/produtos`, produto, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                setProdutos(produtos.map((p) => (p._id === idEditando ? { ...p, ...produto } : p)));
+            } else {
+                // Adicionar novo produto
+                const response = await axios.post("https://backend-aula.vercel.app/app/produtos", produto, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                setProdutos([...produtos, response.data]);
+            }
+            clearForm();
+            setView("");
+        } catch (err) {
+            console.error("Erro ao salvar produto:", err);
+            setError("Erro ao salvar produto.");
+        }
+    };
+
     return (
         <div className="container">
-            <h2>Produtos</h2>
             {error && <p style={{ color: "red" }}>{error}</p>}
 
-            {/* Formulário de Adicionar/Editar Produto */}
-            <form onSubmit={handleSubmit}>
-                <input type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
-                <input type="number" placeholder="Quantidade" value={quantidade} onChange={(e) => setQuantidade(e.target.value)} required />
-                <input type="number" placeholder="Preço" value={preco} onChange={(e) => setPreco(e.target.value)} required />
-                <input type="text" placeholder="Descrição" value={descricao} onChange={(e) => setDescricao(e.target.value)} required />
-                <input type="text" placeholder="Imagem" value={imagem} onChange={(e) => setImagem(e.target.value)} required />
-                <button type="submit">{idEditando ? "Editar Produto" : "Adicionar Produto"}</button>
-                <button type="button" onClick={clearForm}>Limpar</button>
-            </form>
+            {view === "" && (
+                <div className="button-grid">
+                    <button onClick={handleAddClick} className="button button-large">Adicionar</button>
+                    <button onClick={handleListClick} className="button button-large">Listar</button>
+                </div>
+            )}
 
-            <div className="button-container">
-                <button onClick={fetchProdutos}>Listar Produtos</button>
-                {produtos.length > 0 && (
-                    <>
-                        <h3>Produtos Cadastrados:</h3>
-                        <ul>
-                            {produtos.map((produto) => (
-                                <li key={produto._id}>
-                                    <p>{produto.nome} - {produto.quantidade} - R$ {produto.preco} - {produto.descricao}</p>
+            {view === "listar" && produtos.length > 0 && (
+                <div>
+                    <h3>Produtos Cadastrados:</h3>
+                    <div className="product-grid">
+                        {produtos.map((produto) => (
+                            <div key={produto._id} className="product-card">
+                                <p><strong>{produto.nome}</strong></p>
+                                <p>Quantidade: {produto.quantidade}</p>
+                                <p>Preço: R$ {produto.preco}</p>
+                                <p>{produto.descricao}</p>
+                                <div className="button-group">
                                     <button onClick={() => {
                                         setNome(produto.nome);
                                         setQuantidade(produto.quantidade);
@@ -255,17 +263,55 @@ const Products = () => {
                                         setDescricao(produto.descricao);
                                         setImagem(produto.imagem);
                                         setIdEditando(produto._id);
+                                        setView("alterar");
                                     }}>Editar</button>
                                     <button onClick={() => handleDelete(produto._id)}>Excluir</button>
-                                </li>
-                            ))}
-                        </ul>
-                    </>
-                )}
-            </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <button className="back-button" onClick={() => setView("")}>Voltar</button> {/* Botão de "Voltar" */}
+                </div>
+            )}
+
+
+
+            {view === "adicionar" && (
+                <form onSubmit={handleSubmit}>
+                    <input type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
+                    <input type="number" placeholder="Quantidade" value={quantidade} onChange={(e) => setQuantidade(e.target.value)} required />
+                    <input type="number" placeholder="Preço" value={preco} onChange={(e) => setPreco(e.target.value)} required />
+                    <input type="text" placeholder="Descrição" value={descricao} onChange={(e) => setDescricao(e.target.value)} required />
+                    <input type="text" placeholder="Imagem" value={imagem} onChange={(e) => setImagem(e.target.value)} required />
+
+                    {/* Adicionar um contêiner de botões */}
+                    <div className="button-container">
+                        <button type="submit">Adicionar Produto</button>
+                        <button type="button" onClick={() => setView("")}>Voltar</button>
+                    </div>
+                </form>
+            )}
+
+            {view === "alterar" && (
+                <form onSubmit={handleSubmit}>
+                    <input type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
+                    <input type="number" placeholder="Quantidade" value={quantidade} onChange={(e) => setQuantidade(e.target.value)} required />
+                    <input type="number" placeholder="Preço" value={preco} onChange={(e) => setPreco(e.target.value)} required />
+                    <input type="text" placeholder="Descrição" value={descricao} onChange={(e) => setDescricao(e.target.value)} required />
+                    <input type="text" placeholder="Imagem" value={imagem} onChange={(e) => setImagem(e.target.value)} required />
+
+                    <div className="button-container">
+                        <button type="submit">Editar Produto</button>
+                        <button type="button" onClick={() => setView("")}>Voltar</button>
+                    </div>
+                </form>
+            )}
+
         </div>
     );
 };
+
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
