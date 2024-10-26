@@ -32,30 +32,34 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
     }
   };
 
-  return (
-      <div className="container">
-        <h2>Login</h2>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <input
-            type="text"
-            placeholder="RA"
-            value={ra}
-            onChange={(e) => setRA(e.target.value)}
-        />
-        <input
-            type="password"
-            placeholder="Senha"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-        />
-        <button onClick={handleLogin} disabled={loading}>
-          {loading ? "Entrando..." : "Login"}
-        </button>
-        <p>
-          Não tem uma conta? <button onClick={onSwitchToRegister}>Registrar-se</button>
-        </p>
-      </div>
-  );
+    return (
+        <div className="container">
+            <h1 className="title">GuiPadoDevs</h1>
+            <h2>Área Login</h2>
+            <p className="subtitle">Entre com suas credenciais</p>
+            <input
+                type="text"
+                placeholder="RA"
+                value={ra}
+                onChange={(e) => setRA(e.target.value)}
+            />
+            <input
+                type="password"
+                placeholder="Senha"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+            />
+            <button onClick={handleLogin} className="button" disabled={loading}>
+                {loading ? "Entrando..." : "Login"}
+            </button>
+            <p>
+                Não tem uma conta?{" "}
+                <button onClick={onSwitchToRegister} className="register-link">
+                    Registrar-se
+                </button>
+            </p>
+        </div>
+    );
 };
 
 const Register = ({ onRegister }) => {
@@ -284,10 +288,9 @@ const Products = () => {
                     <input type="text" placeholder="Descrição" value={descricao} onChange={(e) => setDescricao(e.target.value)} required />
                     <input type="text" placeholder="Imagem" value={imagem} onChange={(e) => setImagem(e.target.value)} required />
 
-                    {/* Adicionar um contêiner de botões */}
                     <div className="button-container">
-                        <button type="submit">Adicionar Produto</button>
-                        <button type="button" onClick={() => setView("")}>Voltar</button>
+                        <button type="submit" className="action-button">Adicionar Produto</button>
+                        <button type="button" onClick={() => setView("")} className="action-button">Voltar</button>
                     </div>
                 </form>
             )}
