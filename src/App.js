@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import './App.css';
 
@@ -8,29 +8,28 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = async () => {
-    setLoading(true);
-    setError("");
+    const handleLogin = async () => {
+        setLoading(true);
+        setError("");
 
-    try {
-      const response = await axios.post("https://backend-aula.vercel.app/app/login", {
-        usuario: ra,
-        senha: senha
-      });
+        try {
+            const response = await axios.post("https://backend-aula.vercel.app/app/login", {
+                usuario: ra,
+                senha: senha
+            });
 
-        if (response.data.token) {
-            // Armazena o token no localStorage
-            localStorage.setItem("token", response.data.token);
-            onLogin(ra);
-        } else {
-            setError("Login falhou. Verifique suas credenciais.");
+            if (response.data.token) {
+                localStorage.setItem("token", response.data.token);
+                onLogin(ra);
+            } else {
+                window.alert("Login falhou. Verifique suas credenciais.");
+            }
+        } catch (err) {
+            window.alert("Erro no login. Tente novamente.");
+        } finally {
+            setLoading(false);
         }
-    } catch (err) {
-      setError("Erro no login. Tente novamente.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
     return (
         <div className="container">
@@ -173,16 +172,8 @@ const Products = () => {
         clearForm();
     };
 
-    const handleEditClick = () => {
-        setView("alterar");
-    };
-
     const handleListClick = () => {
         fetchProdutos();
-    };
-
-    const handleDeleteClick = () => {
-        setView("deletar");
     };
 
     const handleDelete = async (id) => {
@@ -249,31 +240,35 @@ const Products = () => {
                 </div>
             )}
 
-            {view === "listar" && produtos.length > 0 && (
+            {view === "listar" && (
                 <div>
                     <h3>Produtos Cadastrados:</h3>
-                    <div className="product-grid">
-                        {produtos.map((produto) => (
-                            <div key={produto._id} className="product-card">
-                                <p><strong>{produto.nome}</strong></p>
-                                <p>Quantidade: {produto.quantidade}</p>
-                                <p>Preço: R$ {produto.preco}</p>
-                                <p>{produto.descricao}</p>
-                                <div className="button-group">
-                                    <button onClick={() => {
-                                        setNome(produto.nome);
-                                        setQuantidade(produto.quantidade);
-                                        setPreco(produto.preco);
-                                        setDescricao(produto.descricao);
-                                        setImagem(produto.imagem);
-                                        setIdEditando(produto._id);
-                                        setView("alterar");
-                                    }}>Editar</button>
-                                    <button onClick={() => handleDelete(produto._id)}>Excluir</button>
+                    {produtos.length > 0 ? (
+                        <div className="product-grid">
+                            {produtos.map((produto) => (
+                                <div key={produto._id} className="product-card">
+                                    <p><strong>{produto.nome}</strong></p>
+                                    <p>Quantidade: {produto.quantidade}</p>
+                                    <p>Preço: R$ {produto.preco}</p>
+                                    <p>{produto.descricao}</p>
+                                    <div className="button-group">
+                                        <button onClick={() => {
+                                            setNome(produto.nome);
+                                            setQuantidade(produto.quantidade);
+                                            setPreco(produto.preco);
+                                            setDescricao(produto.descricao);
+                                            setImagem(produto.imagem);
+                                            setIdEditando(produto._id);
+                                            setView("alterar");
+                                        }}>Editar</button>
+                                        <button onClick={() => handleDelete(produto._id)}>Excluir</button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p>Nenhum produto cadastrado.</p>
+                    )}
                     <button className="back-button" onClick={() => setView("")}>Voltar</button> {/* Botão de "Voltar" */}
                 </div>
             )}
@@ -304,8 +299,8 @@ const Products = () => {
                     <input type="text" placeholder="Imagem" value={imagem} onChange={(e) => setImagem(e.target.value)} required />
 
                     <div className="button-container">
-                        <button type="submit">Editar Produto</button>
-                        <button type="button" onClick={() => setView("")}>Voltar</button>
+                        <button type="submit" className="action-button">Editar Produto</button>
+                        <button type="button" onClick={() => setView("")} className="action-button">Voltar</button>
                     </div>
                 </form>
             )}
