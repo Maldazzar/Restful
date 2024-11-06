@@ -61,7 +61,7 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
     );
 };
 
-const Register = ({ onRegister }) => {
+const Register = ({ onRegister, onSwitchToLogin }) => {
   const [ra, setRA] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmSenha, setConfirmSenha] = useState("");
@@ -121,9 +121,10 @@ const Register = ({ onRegister }) => {
             value={confirmSenha}
             onChange={(e) => setConfirmSenha(e.target.value)}
         />
-        <button onClick={handleRegister} disabled={loading}>
+        <button onClick={handleRegister} className="button" disabled={loading}>
           {loading ? "Registrando..." : "Registrar"}
         </button>
+        <button className="back-button" onClick={onSwitchToLogin}>Voltar</button> {/* Botão de "Voltar" */}
       </div>
   );
 };
@@ -335,7 +336,7 @@ function App() {
             <Products />
         ) : (
             isRegistering ? (
-                <Register onRegister={handleSwitchToLogin} />
+                <Register onRegister={handleSwitchToLogin} onSwitchToLogin={handleSwitchToLogin} />
             ) : (
                 <Login onLogin={handleLogin} onSwitchToRegister={handleSwitchToRegister} />
             )
