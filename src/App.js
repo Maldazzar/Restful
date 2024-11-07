@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { ThemeProvider } from "styled-components";
+import { GlobalStyle, themes } from "./themes";
 import axios from "axios";
 import './App.css';
 
@@ -316,6 +318,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [ra, setRA] = useState(null);
+  const [theme, setTheme] = useState("dark");
 
   const handleLogin = (ra) => {
     setRA(ra);
@@ -330,18 +333,26 @@ function App() {
     setIsRegistering(false);
   };
 
+  const toggleTheme = () => {
+      setTheme((prevTheme) => (prevTheme === "dark" ? "light" : "dark"));
+  };
+
   return (
-      <div>
-        {isLoggedIn ? (
-            <Products />
-        ) : (
-            isRegistering ? (
-                <Register onRegister={handleSwitchToLogin} onSwitchToLogin={handleSwitchToLogin} />
-            ) : (
-                <Login onLogin={handleLogin} onSwitchToRegister={handleSwitchToRegister} />
-            )
-        )}
-      </div>
+      <ThemeProvider theme={themes[theme]}>
+          <GlobalStyle />
+          <div>
+              <button className="theme-toggle-button" onClick={toggleTheme}>Alterar Tema</button>
+              {isLoggedIn ? (
+                  <Products/>
+              ) : (
+                  isRegistering ? (
+                      <Register onRegister={handleSwitchToLogin} onSwitchToLogin={handleSwitchToLogin}/>
+                  ) : (
+                      <Login onLogin={handleLogin} onSwitchToRegister={handleSwitchToRegister}/>
+                  )
+              )}
+          </div>
+      </ThemeProvider>
   );
 }
 
