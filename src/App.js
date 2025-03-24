@@ -1,70 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ThemeProvider } from "styled-components";
 import { GlobalStyle, themes } from "./themes";
 import axios from "axios";
 import './App.css';
 
 const Login = ({ onLogin, onSwitchToRegister }) => {
-  const [ra, setRA] = useState("");
+  const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-    const handleLogin = async () => {
-        setLoading(true);
-        setError("");
+  const handleLogin = async () => {
+    setLoading(true);
+    setError("");
 
-        try {
-            const response = await axios.post("https://backend-aula.vercel.app/app/login", {
-                usuario: ra,
-                senha: senha
-            });
+    try {
+      const response = await axios.post("https://backend-aula.vercel.app/app/login", {
+        usuario: email,
+        senha: senha
+      });
 
-            if (response.data.token) {
-                localStorage.setItem("token", response.data.token);
-                onLogin(ra);
-            } else {
-                window.alert("Login falhou. Verifique suas credenciais.");
-            }
-        } catch (err) {
-            window.alert("Erro no login. Tente novamente.");
-        } finally {
-            setLoading(false);
-        }
-    };
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        onLogin(email);
+      } else {
+        window.alert("Login falhou. Verifique suas credenciais.");
+      }
+    } catch (err) {
+      window.alert("Erro no login. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <div className="container">
-            <h1 className="title">GuiPadoDevs</h1>
-            <h2>Área Login</h2>
-            <p className="subtitle">Entre com suas credenciais</p>
-            <input
-                type="text"
-                placeholder="RA"
-                value={ra}
-                onChange={(e) => setRA(e.target.value)}
-            />
-            <input
-                type="password"
-                placeholder="Senha"
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-            />
-            <button onClick={handleLogin} className="button" disabled={loading}>
-                {loading ? "Entrando..." : "Login"}
-            </button>
-            <p>
-                Não tem uma conta?{" "}
-                <button onClick={onSwitchToRegister} className="register-link">
-                    Registrar-se
-                </button>
-            </p>
-        </div>
-    );
+  return (
+    <div className="container">
+      <h1 className="title">Agenda Pessoal</h1>
+      <h2>Área Login</h2>
+      <p className="subtitle">Entre com suas credenciais</p>
+      <input
+        type="email"
+        placeholder="Digite seu e-mail"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Digite sua senha"
+        value={senha}
+        onChange={(e) => setSenha(e.target.value)}
+      />
+      <button onClick={handleLogin} className="button" disabled={loading}>
+        {loading ? "Entrando..." : "Login"}
+      </button>
+      <p>
+        Não tem uma conta?{" "}
+        <button onClick={onSwitchToRegister} className="register-link">
+          Registre-se
+        </button>
+      </p>
+    </div>
+  );
 };
 
 const Register = ({ onRegister, onSwitchToLogin }) => {
-  const [ra, setRA] = useState("");
+  const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmSenha, setConfirmSenha] = useState("");
   const [loading, setLoading] = useState(false);
@@ -82,12 +82,12 @@ const Register = ({ onRegister, onSwitchToLogin }) => {
 
     try {
       const response = await axios.post("https://backend-aula.vercel.app/app/registrar", {
-        usuario: ra,
+        usuario: email,
         senha: senha,
         confirma: confirmSenha
       });
 
-        console.log("Resposta da API:", response.data);
+      console.log("Resposta da API:", response.data);
 
       if (response.data._id) {
         onRegister();
@@ -102,226 +102,255 @@ const Register = ({ onRegister, onSwitchToLogin }) => {
   };
 
   return (
-      <div className="container">
-        <h2>Registro</h2>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <input
-            type="text"
-            placeholder="RA"
-            value={ra}
-            onChange={(e) => setRA(e.target.value)}
-        />
-        <input
-            type="password"
-            placeholder="Senha"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-        />
-        <input
-            type="password"
-            placeholder="Confirmar Senha"
-            value={confirmSenha}
-            onChange={(e) => setConfirmSenha(e.target.value)}
-        />
-        <button onClick={handleRegister} className="button" disabled={loading}>
-          {loading ? "Registrando..." : "Registrar"}
-        </button>
-        <button className="back-button" onClick={onSwitchToLogin}>Voltar</button> {/* Botão de "Voltar" */}
-      </div>
+    <div className="container">
+      <h2>Registro</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <input
+        type="email"
+        placeholder="Digite seu e-mail"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Digite sua senha"
+        value={senha}
+        onChange={(e) => setSenha(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Digite novamente a sua senha"
+        value={confirmSenha}
+        onChange={(e) => setConfirmSenha(e.target.value)}
+      />
+      <button onClick={handleRegister} className="button" disabled={loading}>
+        {loading ? "Registrando..." : "Registrar"}
+      </button>
+      <button className="back-button" onClick={onSwitchToLogin}>Voltar</button>
+    </div>
   );
 };
 
-const Products = () => {
-    const [produtos, setProdutos] = useState([]);
-    const [view, setView] = useState(""); // Estado para controlar qual formulário exibir
-    const [nome, setNome] = useState("");
-    const [quantidade, setQuantidade] = useState("");
-    const [preco, setPreco] = useState("");
-    const [descricao, setDescricao] = useState("");
-    const [imagem, setImagem] = useState("");
-    const [idEditando, setIdEditando] = useState(null);
-    const [error, setError] = useState("");
+const Tasks = () => {
+  const [tasks, setTasks] = useState([]);
+  const [view, setView] = useState(""); // Estado para controlar qual formulário exibir
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [priority, setPriority] = useState("");
+  const [idEditing, setIdEditing] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    const token = localStorage.getItem("token");
+  useEffect(() => {
+    if (view === "listar") {
+      fetchTasks();
+    }
+  }, [view]);
 
-    // Função para buscar produtos
-    const fetchProdutos = async () => {
-        try {
-            const response = await axios.get("https://backend-aula.vercel.app/app/produtos", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            setProdutos(response.data);
-            setView("listar");
-        } catch (err) {
-            console.error("Erro ao buscar produtos:", err);
-            setError("Erro ao buscar produtos.");
-        }
+  // Função para buscar tarefas
+  const fetchTasks = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/tasks");
+      setTasks(response.data);
+    } catch (err) {
+      console.error("Erro ao buscar tarefas:", err);
+      setError("Erro ao buscar tarefas.");
+    }
+  };
+
+  const clearForm = () => {
+    setTitle("");
+    setDescription("");
+    setDueDate("");
+    setPriority("");
+    setIdEditing(null);
+    setError("");
+  };
+
+  const handleAddClick = () => {
+    setView("adicionar");
+    clearForm();
+  };
+
+  const handleListClick = () => {
+    setView("listar");
+  };
+
+  const handleEdit = (task) => {
+    setTitle(task.title);
+    setDescription(task.description);
+    setDueDate(task.dueDate);
+    setPriority(task.priority);
+    setIdEditing(task._id);
+    setView("adicionar");
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/tasks/${id}`);
+      setTasks(tasks.filter((task) => task._id !== id));
+    } catch (err) {
+      console.error("Erro ao deletar tarefa:", err);
+      setError("Erro ao deletar tarefa.");
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const task = {
+      title,
+      description,
+      dueDate,
+      priority,
     };
 
-    const clearForm = () => {
-        setNome("");
-        setQuantidade("");
-        setPreco("");
-        setDescricao("");
-        setImagem("");
-        setIdEditando(null);
-        setError("");
-    };
+    try {
+      if (idEditing) {
+        await axios.put(`http://localhost:5000/tasks/${idEditing}`, task);
+      } else {
+        await axios.post('http://localhost:5000/tasks', task);
+      }
+      fetchTasks();
+      setView("listar");
+    } catch (err) {
+      console.error("Erro ao salvar tarefa:", err);
+      setError("Erro ao salvar tarefa.");
+    }
+  };
 
-    const handleAddClick = () => {
-        setView("adicionar");
-        clearForm();
-    };
-
-    const handleListClick = () => {
-        fetchProdutos();
-    };
-
-    const handleDelete = async (id) => {
-        try {
-            await axios.delete('https://backend-aula.vercel.app/app/produtos', {
-                data: { id: id }, // Enviar o ID no corpo, conforme o backend espera
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            setProdutos(produtos.filter((produto) => produto._id !== id));  // Remove o produto da lista local
-        } catch (err) {
-            console.error("Erro ao deletar produto:", err);
-            setError("Erro ao deletar produto.");
-        }
-    };
-
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const produto = {
-            id: idEditando, // Adiciona o id do produto que está sendo editado
-            nome,
-            quantidade,
-            preco,
-            descricao,
-            imagem,
-        };
-
-        try {
-            if (idEditando) {
-                // Editar produto
-                await axios.put(`https://backend-aula.vercel.app/app/produtos`, produto, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                setProdutos(produtos.map((p) => (p._id === idEditando ? { ...p, ...produto } : p)));
-            } else {
-                // Adicionar novo produto
-                const response = await axios.post("https://backend-aula.vercel.app/app/produtos", produto, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                setProdutos([...produtos, response.data]);
-            }
-            clearForm();
-            setView("");
-        } catch (err) {
-            console.error("Erro ao salvar produto:", err);
-            setError("Erro ao salvar produto.");
-        }
-    };
-
-    return (
-        <div className="container">
-            {error && <p style={{ color: "red" }}>{error}</p>}
-
-            {view === "" && (
-                <div className="button-grid">
-                    <button onClick={handleAddClick} className="button button-large">Adicionar</button>
-                    <button onClick={handleListClick} className="button button-large">Listar</button>
-                </div>
-            )}
-
-            {view === "listar" && (
-                <div>
-                    <h3>Produtos Cadastrados:</h3>
-                    {produtos.length > 0 ? (
-                        <div className="product-grid">
-                            {produtos.map((produto) => (
-                                <div key={produto._id} className="product-card">
-                                    <p><strong>{produto.nome}</strong></p>
-                                    <p>Quantidade: {produto.quantidade}</p>
-                                    <p>Preço: R$ {produto.preco}</p>
-                                    <p>{produto.descricao}</p>
-                                    <div className="button-group">
-                                        <button onClick={() => {
-                                            setNome(produto.nome);
-                                            setQuantidade(produto.quantidade);
-                                            setPreco(produto.preco);
-                                            setDescricao(produto.descricao);
-                                            setImagem(produto.imagem);
-                                            setIdEditando(produto._id);
-                                            setView("alterar");
-                                        }}>Editar</button>
-                                        <button onClick={() => handleDelete(produto._id)}>Excluir</button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p>Nenhum produto cadastrado.</p>
-                    )}
-                    <button className="back-button" onClick={() => setView("")}>Voltar</button> {/* Botão de "Voltar" */}
-                </div>
-            )}
-
-
-
-            {view === "adicionar" && (
-                <form onSubmit={handleSubmit}>
-                    <input type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
-                    <input type="number" placeholder="Quantidade" value={quantidade} onChange={(e) => setQuantidade(e.target.value)} required />
-                    <input type="number" placeholder="Preço" value={preco} onChange={(e) => setPreco(e.target.value)} required />
-                    <input type="text" placeholder="Descrição" value={descricao} onChange={(e) => setDescricao(e.target.value)} required />
-                    <input type="text" placeholder="Imagem" value={imagem} onChange={(e) => setImagem(e.target.value)} required />
-
-                    <div className="button-container">
-                        <button type="submit" className="action-button">Adicionar Produto</button>
-                        <button type="button" onClick={() => setView("")} className="action-button">Voltar</button>
-                    </div>
-                </form>
-            )}
-
-            {view === "alterar" && (
-                <form onSubmit={handleSubmit}>
-                    <input type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
-                    <input type="number" placeholder="Quantidade" value={quantidade} onChange={(e) => setQuantidade(e.target.value)} required />
-                    <input type="number" placeholder="Preço" value={preco} onChange={(e) => setPreco(e.target.value)} required />
-                    <input type="text" placeholder="Descrição" value={descricao} onChange={(e) => setDescricao(e.target.value)} required />
-                    <input type="text" placeholder="Imagem" value={imagem} onChange={(e) => setImagem(e.target.value)} required />
-
-                    <div className="button-container">
-                        <button type="submit" className="action-button">Editar Produto</button>
-                        <button type="button" onClick={() => setView("")} className="action-button">Voltar</button>
-                    </div>
-                </form>
-            )}
-
-        </div>
-    );
+  return (
+    <div className="container">
+      {view === "" ? (
+        <>
+          <button onClick={handleAddClick} className="button">Adicionar Tarefa</button>
+          <button onClick={handleListClick} className="button">Listar Tarefas</button>
+        </>
+      ) : view === "listar" ? (
+        <>
+          <h2>Lista de Tarefas</h2>
+          {tasks.map((task) => (
+            <div key={task._id} className="task-card">
+              <h3>{task.title}</h3>
+              <p>{task.description}</p>
+              <p>Data de Vencimento: {task.dueDate}</p>
+              <p>Prioridade: {task.priority}</p>
+              <button onClick={() => handleEdit(task)}>Editar</button>
+              <button onClick={() => handleDelete(task._id)}>Deletar</button>
+            </div>
+          ))}
+          <button onClick={handleAddClick} className="button">Adicionar Tarefa</button>
+        </>
+      ) : (
+        <>
+          <h2>{idEditing ? "Editar Tarefa" : "Adicionar Tarefa"}</h2>
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              placeholder="Título"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Descrição"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+            <input
+              type="date"
+              placeholder="Data de Vencimento"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Prioridade"
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+            />
+            <button type="submit" className="button">{idEditing ? "Salvar" : "Adicionar"}</button>
+          </form>
+          <button className="back-button" onClick={handleListClick}>Voltar</button>
+        </>
+      )}
+    </div>
+  );
 };
 
+const Calculator = () => {
+  const [num1, setNum1] = useState("");
+  const [num2, setNum2] = useState("");
+  const [operation, setOperation] = useState("add");
+  const [result, setResult] = useState(null);
 
+  const handleCalculate = () => {
+    const number1 = parseFloat(num1);
+    const number2 = parseFloat(num2);
+
+    if (isNaN(number1) || isNaN(number2)) {
+      setResult("Por favor, insira números válidos.");
+      return;
+    }
+
+    let res;
+    switch (operation) {
+      case "add":
+        res = number1 + number2;
+        break;
+      case "subtract":
+        res = number1 - number2;
+        break;
+      case "multiply":
+        res = number1 * number2;
+        break;
+      case "divide":
+        if (number2 === 0) {
+          setResult("Não é possível dividir por zero.");
+          return;
+        }
+        res = number1 / number2;
+        break;
+      default:
+        res = "Operação inválida.";
+    }
+    setResult(res);
+  };
+
+  return (
+    <div className="calculator">
+      <h2>Calculadora</h2>
+      <input
+        type="number"
+        placeholder="Número 1"
+        value={num1}
+        onChange={(e) => setNum1(e.target.value)}
+      />
+      <input
+        type="number"
+        placeholder="Número 2"
+        value={num2}
+        onChange={(e) => setNum2(e.target.value)}
+      />
+      <select value={operation} onChange={(e) => setOperation(e.target.value)}>
+        <option value="add">Somar</option>
+        <option value="subtract">Subtrair</option>
+        <option value="multiply">Multiplicar</option>
+        <option value="divide">Dividir</option>
+      </select>
+      <button onClick={handleCalculate} className="button">Calcular</button>
+      {result !== null && <p>Resultado: {result}</p>}
+    </div>
+  );
+};
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
-  const [ra, setRA] = useState(null);
   const [theme, setTheme] = useState("dark");
 
-  const handleLogin = (ra) => {
-    setRA(ra);
+  const handleLogin = (email) => {
     setIsLoggedIn(true);
   };
 
@@ -334,25 +363,28 @@ function App() {
   };
 
   const toggleTheme = () => {
-      setTheme((prevTheme) => (prevTheme === "dark" ? "light" : "dark"));
+    setTheme((prevTheme) => (prevTheme === "dark" ? "light" : "dark"));
   };
 
   return (
-      <ThemeProvider theme={themes[theme]}>
-          <GlobalStyle />
-          <div>
-              <button className="theme-toggle-button" onClick={toggleTheme}>Alterar Tema</button>
-              {isLoggedIn ? (
-                  <Products/>
-              ) : (
-                  isRegistering ? (
-                      <Register onRegister={handleSwitchToLogin} onSwitchToLogin={handleSwitchToLogin}/>
-                  ) : (
-                      <Login onLogin={handleLogin} onSwitchToRegister={handleSwitchToRegister}/>
-                  )
-              )}
-          </div>
-      </ThemeProvider>
+    <ThemeProvider theme={themes[theme]}>
+      <GlobalStyle />
+      <div>
+        <button className="theme-toggle-button" onClick={toggleTheme}>Alterar Tema</button>
+        {isLoggedIn ? (
+          <>
+            <Calculator />
+            <Tasks />
+          </>
+        ) : (
+          isRegistering ? (
+            <Register onRegister={handleSwitchToLogin} onSwitchToLogin={handleSwitchToLogin} />
+          ) : (
+            <Login onLogin={handleLogin} onSwitchToRegister={handleSwitchToRegister} />
+          )
+        )}
+      </div>
+    </ThemeProvider>
   );
 }
 
