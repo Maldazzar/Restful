@@ -1,24 +1,3 @@
-# 🇺🇸 🌟 Frontend Project with API Integration 🌟
-
-Welcome to my frontend project! This application is a fantastic example of how to create a responsive user interface that interacts with an API. 🚀
-
-## Features
-
-- **User Authentication**: Secure login system with JWT tokens 🔐
-- **CRUD Operations**: Create, Read, Update, and Delete functionalities for managing data 📊
-- **API Integration**: Fetch and manage data seamlessly through a RESTful API 🌐
-
-## Technologies Used
-
-- React.js ⚛️
-- Node.js 🟢
-- MongoDB 🍃
-- CSS for styling 🎨
-
-## Contributing
-
-Contributions are welcome! If you have suggestions for improvements or features, feel free to open an issue or submit a pull request. 💡
-
 ---
 # 🇧🇷 🌟 Projeto Frontend com Integração de API 🌟
 
